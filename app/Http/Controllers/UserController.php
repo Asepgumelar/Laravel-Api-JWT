@@ -6,8 +6,8 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
-use JWTAuth;
 use Tymon\JWTAuth\Exceptions\JWTException;
+use JWTAuth;
 
 class UserController extends Controller
 {
@@ -16,11 +16,15 @@ class UserController extends Controller
         $credentials = $request->only('email', 'password');
 
         try {
-            if (!$token = \JWTAuth::attempt($credentials)) {
+            if (!$token = JWTAuth::attempt($credentials)) {
+
                 return response()->json(['error' => 'invalid_credentials'], 400);
+
             }
         } catch (JWTException $e) {
+
             return response()->json(['error' => 'could_not_create_token'], 500);
+
         }
 
         return response()->json(compact('token'));
@@ -44,7 +48,7 @@ class UserController extends Controller
             'password' => Hash::make($request->get('password')),
         ]);
 
-        $token = \JWTAuth::fromUser($user);
+        $token = JWTAuth::fromUser($user);
 
         return response()->json(compact('user','token'),201);
     }
@@ -53,7 +57,7 @@ class UserController extends Controller
     {
         try {
 
-            if (! $user = \JWTAuth::parseToken()->authenticate()) {
+            if (! $user = JWTAuth::parseToken()->authenticate()) {
                 return response()->json(['user_not_found'], 404);
             }
 
@@ -68,7 +72,6 @@ class UserController extends Controller
         } catch (\Tymon\JWTAuth\Exceptions\JWTException $e) {
 
             return response()->json(['token_absent'], $e->getStatusCode());
-
         }
 
         return response()->json(compact('user'));
